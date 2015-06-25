@@ -9,9 +9,6 @@
     - mysql-server
     - ntp
 
-- name: add gstech user to www-data group
-  user: name=gstech groups=www-data,sudo,adm append=yes
-
 - name: push out webperms fix script
   copy: src=webperms-fixup.sh dest=/usr/local/bin/webpermsfixup.sh mode=0700
 
