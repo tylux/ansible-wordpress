@@ -1,0 +1,11 @@
+#This playbook deploys latest wordpress with a lemp server onto a Ubuntu host.
+
+Step 1
+
+Edit site.yml vars to match your server/site
+
+Step 2
+
+Run the play book like so, replacing IP with the IP of your server
+
+   ansible-playbook -i '10.0.1.117,' site.yml

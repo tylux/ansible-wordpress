@@ -1,0 +1,14 @@
+- name: nginx reload
+  service: name=nginx state=reloaded
+
+- name: nginx restart
+  service: name=nginx state=restarted
+
+- name: php5 reload
+  service: php5-fpm state=reload
+
+- name: munin restart
+  service: munin-node state=restarted
+
+- name: mysql restart
+  service: mysql state=restarted

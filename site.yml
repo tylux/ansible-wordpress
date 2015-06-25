@@ -1,0 +1,21 @@
+- name: Install and configure lemp and wordpress on a Ubuntu server
+  hosts: all
+  user: ubuntu
+  gather_facts: yes
+  sudo: yes
+
+  roles:
+    - webserver
+
+  vars:
+    host_ip: 10.0.1.117
+    website: template-wp.com
+    wp_user: wp_user
+    wp_password: wp_password
+    mysql_root_pass: root_password
+
+    #Don't change
+    docroot: '/var/www/wordpress'
+    wordpress_dir: /var/www
+    wordpress_url: http://wordpress.org/latest.tar.gz
+    wordpress_db: wordpress

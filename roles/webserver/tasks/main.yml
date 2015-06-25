@@ -1,0 +1,68 @@
+- name: install webserver  packages
+  apt: name={{ item }} state=installed
+  with_items:
+    - nginx
+    - php5-fpm
+    - php5-mysql
+    - php5-cli
+    - python-mysqldb
+    - mysql-server
+    - ntp
+
+- name: add gstech user to www-data group
+  user: name=gstech groups=www-data,sudo,adm append=yes
+
+- name: push out webperms fix script
+  copy: src=webperms-fixup.sh dest=/usr/local/bin/webpermsfixup.sh mode=0700
+
+- name: setup vhost
+  template: src=wp.vhost.j2 dest=/etc/nginx/sites-available/wp
+  notify:
+    - nginx reload
+
+- name: enable vhost
+  file: src=/etc/nginx/sites-available/wp dest=/etc/nginx/sites-enabled/wp state=link
+  notify:
+    - nginx restart
+
+- name: remove default vhost
+  file: path=/etc/nginx/sites-enabled/default state=absent
+  notify:
+    - nginx restart
+
+- name: manage www.conf file
+  copy: src=www.conf dest=/etc/php5/fpm/pool.d/www.conf
+  notify:
+    - php5 reload
+
+- name: Delete the html directory
+  file: path=/var/www/html state=absent recurse=no
+  ignore_errors: True
+
+- name: check if DB exists
+  shell: mysql -e 'SHOW DATABASES;' | grep {{ wordpress_db }}
+  register: dbstatus
+  ignore_errors: True
+
+- name: Create a new database with name '{{ wordpress_db }}'
+  mysql_db: name={{ wordpress_db }} encoding=utf8 collation=utf8_general_ci state=present
+  when: dbstatus.rc != 0
+
+- name: Create the database user for wordpress
+  mysql_user: name={{ wp_user }} password={{ wp_password }} priv={{ wordpress_db }}.*:ALL state=present
+
+
+- name: Create wordpress directory at {{ wordpress_dir }}
+  file: state=directory path={{ wordpress_dir }} owner=www-data group=www-data mode=0755 recurse=yes
+
+- name: Download the latest wordpress
+  get_url: url={{ wordpress_url }} dest={{ wordpress_dir }}/latest.tar.gz
+
+- name: Unzip the downloaded wordpress zipped file
+  unarchive: src={{ wordpress_dir }}/latest.tar.gz dest={{ wordpress_dir }} copy=no
+
+- name: Copy the "wp-config.php" file inside the {{ docroot }} directory
+  template: src=wp-config.php.j2 dest={{ docroot }}/wp-config.php
+
+- name: run web perms fixup
+  shell: /usr/local/bin/webpermsfixup.sh
