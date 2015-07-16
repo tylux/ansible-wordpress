@@ -5,7 +5,7 @@
   service: name=nginx state=restarted
 
 - name: php5 reload
-  service: php5-fpm state=reload
+  service: php5-fpm state=reloaded
 
 - name: munin restart
   service: munin-node state=restarted
