@@ -12,7 +12,6 @@
     website: template-wp.com
     wp_user: wp_user
     wp_password: wp_password
-    mysql_root_pass: root_password
 
     #Don't change
     docroot: '/var/www/wordpress'
